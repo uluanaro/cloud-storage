@@ -1,12 +1,13 @@
 import boto3
 from botocore.exceptions import ClientError
+from decouple import config
 
 BUCKET_NAME = "user-files"
 
 s3_client = boto3.client('s3',
-                         endpoint_url='http://localhost:9000',
-                         aws_access_key_id='minioadmin',
-                         aws_secret_access_key='minioadmin'
+                         endpoint_url=config('MINIO_ENDPOINT'),
+                         aws_access_key_id=config('MINIO_ACCESS_KEY'),
+                         aws_secret_access_key=config('MINIO_SECRET_KEY')
                          )
 def init_storage():
     try:
