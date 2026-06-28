@@ -49,3 +49,13 @@ def delete_file(user_id, key):
 def create_folder(user_id, path, folder_name):
     key = get_user_folder(user_id)+ path + folder_name + "/"
     s3_client.put_object(Bucket=BUCKET_NAME, Key=key, Body=b"")
+
+def get_download_url(key, expires=3600):
+    url = s3_client.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': BUCKET_NAME, 'Key': key},
+        ExpiresIn=expires
+    )
+    return url
+
+

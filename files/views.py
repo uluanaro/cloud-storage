@@ -3,6 +3,7 @@ from functools import partial
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from . import services
+from .services import get_user_folder
 
 
 @login_required
@@ -56,3 +57,11 @@ def delete_view(request):
         return redirect(f"/?path={path}")
     services.delete_file(user_id, key)
     return redirect(f"/?path={path}")
+
+@login_required
+def download_view(request):
+    key = request.GET.get('key', "")
+    if not key:
+        return redirect("/")
+    url = services.get_download_url(key, expires=3600)
+    return redirect(url)
