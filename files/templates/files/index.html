@@ -8,7 +8,45 @@
   <h1>Привет, {{ request.user.username }}!</h1>
   <a href="/auth/logout/">Выйти</a>
   <hr>
-  <h2>Мои файлы</h2>
-  <p>Здесь будут файлы</p>
+  
+  <p>Путь: /{{ current_path }}</p>
+
+  <h2>Папки</h2>
+  {% for folder in folders %}
+  <a href="/?path={{ current_path }}{{ folder }}/">📁 {{ folder }}</a><br>>
+  {% empty %}
+  <p>Папок нет</p>
+  {% endfor %}
+
+   <h2>Файлы</h2>
+    {% for file in files %}
+        <p>
+            📄 {{ file.name }} ({{ file.size }} байт)
+            <form method="post" action="/delete/" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="key" value="{{ file.key }}">
+                <input type="hidden" name="path" value="{{ current_path }}">
+                <button type="submit">Удалить</button>
+            </form>
+        </p>
+    {% empty %}
+        <p>Файлов нет</p>
+    {% endfor %}
+
+    <h2>Загрузить файл</h2>
+    <form method="post" action="/upload/" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="path" value="{{ current_path }}">
+        <input type="file" name="file">
+        <button type="submit">Загрузить</button>
+    </form>
+
+<h2>Создать папку</h2>
+    <form method="post" action="/create-folder/">
+        {% csrf_token %}
+        <input type="hidden" name="path" value="{{ current_path }}">
+        <input type="text" name="folder_name" placeholder="Имя папки">
+        <button type="submit">Создать</button>
+    </form>
 </body>
 </html>

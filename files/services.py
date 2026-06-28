@@ -37,3 +37,14 @@ def list_files(get_id, path):
                 "key": file_key
             })
     return folders, files
+
+def upload_file(user_id, path, file):
+    key = get_user_folder(user_id)+ path + file.name
+    s3_client.upload_fileobj(file, BUCKET_NAME, key)
+
+def delete_file(user_id, key):
+    s3_client.delete_object(Bucket=BUCKET_NAME, Key=key)
+
+def create_folder(user_id, path, folder_name):
+    key = get_user_folder(user_id)+ path + folder_name + "/"
+    s3_client.put_object(Bucket=BUCKET_NAME, Key=key, Body=b"")
