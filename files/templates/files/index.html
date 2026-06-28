@@ -8,12 +8,19 @@
   <h1>Привет, {{ request.user.username }}!</h1>
   <a href="/auth/logout/">Выйти</a>
   <hr>
-  
+
   <p>Путь: /{{ current_path }}</p>
+
+  <div>
+      {% for name, crumb_path in breadcrumbs %}
+      <a href="/?path={{ crumb_path }}">{{ name}}</a>
+      {% if not forloop.last %} / {% endif %}
+      {% endfor %}
+  </div>
 
   <h2>Папки</h2>
   {% for folder in folders %}
-  <a href="/?path={{ current_path }}{{ folder }}/">📁 {{ folder }}</a><br>>
+  <a href="/?path={{ current_path }}{{ folder }}/">📁 {{ folder }}</a><br>
   {% empty %}
   <p>Папок нет</p>
   {% endfor %}

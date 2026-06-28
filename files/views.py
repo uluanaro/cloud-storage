@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from . import services
@@ -8,10 +10,20 @@ def index_view(request):
     path = request.GET.get('path', "")
     user_id = request.user.id
     folders, files = services.list_files(user_id, path)
+
+    parts = path.split("/")
+    current = ""
+    breadcrumbs = [("Главная", "")]
+    for part in parts:
+        if part:
+            current += part + "/"
+            breadcrumbs.append((part, current))
+
     return render(request, 'files/index.html', {
         'folders': folders,
         'files': files,
-        'current_path': path
+        'current_path': path,
+        'breadcrumbs': breadcrumbs
     })
 
 @login_required
