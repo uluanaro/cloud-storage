@@ -1,9 +1,6 @@
-from functools import partial
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from . import services
-from .services import get_user_folder
 
 
 @login_required
@@ -65,3 +62,15 @@ def download_view(request):
         return redirect("/")
     url = services.get_download_url(key, expires=3600)
     return redirect(url)
+
+@login_required
+def search_view(request):
+    query = request.GET.get('query', "")
+    if not query:
+        return redirect("/")
+    user_id = request.user.id
+    results = services.search_files(user_id, query)
+    return render(request, 'files/search.html', {
+        'results': results,
+        'query': query
+    })

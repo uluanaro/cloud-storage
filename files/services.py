@@ -58,4 +58,21 @@ def get_download_url(key, expires=3600):
     )
     return url
 
+def search_files(user_id, query):
+    prefix = get_user_folder(user_id)
+    response = s3_client.list_objects_v2(
+        Bucket=BUCKET_NAME,
+        Prefix=prefix
+    )
+    results = []
+    for obj in response.get('Contents', []):
+        key = obj['Key']
+        name = key.replace(prefix, '')
+        if query.lower() in name.lower() and not name.endswith('/'):
+            results.append({
+                'name': name,
+                'key': key,
+                'size': obj['Size']
+            })
+    return results
 

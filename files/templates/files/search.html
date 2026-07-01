@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Результаты поиска: {{ query }}</title>
+</head>
+<body>
+  <h2>Найти файл</h2>
+    <form method="get" action="/search/">
+        <input type="text" name="query">
+        <button type="submit">Найти</button>
+
+    </form>
+     <h2>Результаты поиска: {{ query }}</h2>
+    {% for result in results %}
+        <p>
+            📄 {{ result.name }} ({{ result.size }} байт)
+        </p>
+        <a href="/download/?key={{ result.key }}">Скачать</a>
+    {% empty %}
+        <p>Ничего не найдено</p>
+    {% endfor %}
+
+  <a href="/">Назад</a>
+</body>
+</html>

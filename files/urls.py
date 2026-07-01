@@ -7,4 +7,5 @@ urlpatterns = [
     path('create-folder/', views.create_folder_view, name='create_folder'),
     path('delete/', views.delete_view, name='delete'),
     path('download/', views.download_view, name='download'),
+    path("search/", views.search_view, name="search"),
 ]
