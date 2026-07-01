@@ -1,69 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Облачное хранилище</title>
-</head>
-<body>
-  <h1>Привет, {{ request.user.username }}!</h1>
-  <a href="/auth/logout/">Выйти</a>
-  <hr>
+{% extends "base.html" %}
+{% block title %}Облачное хранилище{% endblock %}
+{% block content %}
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Привет, {{ request.user.username }}!</h1>
+        <a href="/auth/logout/" class="btn btn-outline-danger">Выйти</a>
+    </div>
 
-  <p>Путь: /{{ current_path }}</p>
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            {% for name, crumb_path in breadcrumbs %}
+                {% if forloop.last %}
+                    <li class="breadcrumb-item active">{{ name }}</li>
+                {% else %}
+                    <li class="breadcrumb-item">
+                        <a href="/?path={{ crumb_path }}">{{ name }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
 
-  <div>
-      {% for name, crumb_path in breadcrumbs %}
-      <a href="/?path={{ crumb_path }}">{{ name}}</a>
-      {% if not forloop.last %} / {% endif %}
-      {% endfor %}
-  </div>
-
-  <div>
-      <h2>Найти файл</h2>
-    <form method="get" action="/search/">
-        <input type="text" name="query">
-        <button type="submit">Найти</button>
-
-    </form>
-  </div>
-
-  <h2>Папки</h2>
-  {% for folder in folders %}
-  <a href="/?path={{ current_path }}{{ folder }}/">📁 {{ folder }}</a><br>
-  {% empty %}
-  <p>Папок нет</p>
-  {% endfor %}
-
-   <h2>Файлы</h2>
-    {% for file in files %}
-        <p>
-            📄 {{ file.name }} ({{ file.size }} байт)
-            <form method="post" action="/delete/" style="display:inline">
-                {% csrf_token %}
-                <input type="hidden" name="key" value="{{ file.key }}">
-                <input type="hidden" name="path" value="{{ current_path }}">
-                <button type="submit">Удалить</button>
+    <!-- Поиск -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" action="/search/" class="d-flex gap-2">
+                <input type="text" name="query" class="form-control" placeholder="Поиск файлов...">
+                <button type="submit" class="btn btn-primary">Найти</button>
             </form>
-        </p>
-        <a href="/download/?key={{ file.key }}">Скачать</a>
-    {% empty %}
-        <p>Файлов нет</p>
-    {% endfor %}
+        </div>
+    </div>
 
-    <h2>Загрузить файл</h2>
-    <form method="post" action="/upload/" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="hidden" name="path" value="{{ current_path }}">
-        <input type="file" name="file">
-        <button type="submit">Загрузить</button>
-    </form>
+    <!-- Две колонки: Загрузка и Создание папки -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Загрузить файл</div>
+                <div class="card-body">
+                    <form method="post" action="/upload/" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="path" value="{{ current_path }}">
+                        <input type="file" name="file" class="form-control mb-2">
+                        <button type="submit" class="btn btn-success">Загрузить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Создать папку</div>
+                <div class="card-body">
+                    <form method="post" action="/create-folder/">
+                        {% csrf_token %}
+                        <input type="hidden" name="path" value="{{ current_path }}">
+                        <input type="text" name="folder_name" placeholder="Имя папки" class="form-control mb-2">
+                        <button type="submit" class="btn btn-success">Создать</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h2>Создать папку</h2>
-    <form method="post" action="/create-folder/">
-        {% csrf_token %}
-        <input type="hidden" name="path" value="{{ current_path }}">
-        <input type="text" name="folder_name" placeholder="Имя папки">
-        <button type="submit">Создать</button>
-    </form>
-</body>
-</html>
+    <!-- Список файлов и папок -->
+    <div class="card">
+        <div class="card-header">Мои файлы</div>
+        <ul class="list-group list-group-flush">
+            {% for folder in folders %}
+                <li class="list-group-item">
+                    <a href="/?path={{ current_path }}{{ folder }}/">📁 {{ folder }}</a>
+                </li>
+            {% endfor %}
+            {% for file in files %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>📄 {{ file.name }} ({{ file.size }} байт)</span>
+                    <div>
+                        <a href="/download/?key={{ file.key }}" class="btn btn-primary btn-sm">Скачать</a>
+                        <form method="post" action="/delete/" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="key" value="{{ file.key }}">
+                            <input type="hidden" name="path" value="{{ current_path }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+            {% if not folders and not files %}
+                <li class="list-group-item text-muted">Пусто</li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}
