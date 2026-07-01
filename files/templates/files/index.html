@@ -18,6 +18,15 @@
       {% endfor %}
   </div>
 
+  <div>
+      <h2>Найти файл</h2>
+    <form method="get" action="/search/">
+        <input type="text" name="query">
+        <button type="submit">Найти</button>
+
+    </form>
+  </div>
+
   <h2>Папки</h2>
   {% for folder in folders %}
   <a href="/?path={{ current_path }}{{ folder }}/">📁 {{ folder }}</a><br>

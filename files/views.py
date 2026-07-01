@@ -52,14 +52,25 @@ def delete_view(request):
     key = request.POST.get('key', "")
     if not key:
         return redirect(f"/?path={path}")
+    user_prefix = services.get_user_folder(user_id)
+    if not key.startswith(user_prefix):
+        return redirect("/")
     services.delete_file(user_id, key)
     return redirect(f"/?path={path}")
+
 
 @login_required
 def download_view(request):
     key = request.GET.get('key', "")
     if not key:
         return redirect("/")
+
+    user_id = request.user.id
+    user_prefix = services.get_user_folder(user_id)
+
+    if not key.startswith(user_prefix):
+        return redirect("/")
+
     url = services.get_download_url(key, expires=3600)
     return redirect(url)
 
